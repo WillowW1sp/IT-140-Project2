@@ -10,8 +10,8 @@ state = {
     "hp": 25,                 # Base HP for normal players
     "inventory": {},          # item_name -> description
     "books": set(),           # {"lore1", "lore2", "lore3", "lore4", "lore5"}
-    "allies": set(),          # {"enemy1", "enemy2"}
-    "trophies": set(),        # {"enemy1_trophy", "enemy2_trophy"}
+    "allies": set(),          # {"Cursed Knight", "Mad Alchemist"}
+    "trophies": set(),        # {"knight_trophy", "alchemist_trophy"}
     "hidden_found": set(),    # {"hidden1", "hidden2"}
     "current_room": "start",
     "king_defeated": False,
@@ -19,7 +19,7 @@ state = {
 
 # ---------- Win requirements ----------
 REQUIRED_ITEMS = {"dagger", "ring"}
-REQUIRED_BOOKS = {"lore1", "lore2", "lore3"}  # lore4 & lore5 are bonus for mercy
+REQUIRED_BOOKS = {"lore1", "lore2", "lore3"}  # lore4 & lore5 are optional for sparing King
 
 # ---------- Map ----------
 rooms = {
@@ -28,8 +28,8 @@ rooms = {
     "storage": {"east": "kitchen"},
     "hallway": {"west": "start", "east": "cell1", "south": "cell2", "north": "laboratory"},
     "hidden1": {"up": "hallway"},
-    "hidden2": {},  # will add west -> cell1 when unlocked
-    "cell1": {"west": "hallway"},  # Hidden2 added later
+    "hidden2": {},  # added dynamically
+    "cell1": {"west": "hallway"},  # hidden2 added dynamically
     "cell2": {"north": "hallway"},
     "laboratory": {"south": "hallway", "west": "boss"},
     "boss": {"east": "laboratory"},
@@ -141,6 +141,23 @@ def fight_enemy(enemy_name, enemy_hp, enemy_damage, trophy_name):
             if state["hp"] <= 0:
                 slow_print("You have been slain... Game over.")
                 exit()
+
+def can_fight_boss():
+    # Required items
+    has_items = REQUIRED_ITEMS.union({"knife"}).issubset(state["inventory"].keys())
+    # Required books
+    has_books = REQUIRED_BOOKS.issubset(state["books"])
+    # Enemy contributions
+    enemies = {"Cursed Knight", "Mad Alchemist"}
+    allies_have = state["allies"].intersection(enemies)
+    trophies_have = state["trophies"].intersection({"knight_trophy", "alchemist_trophy"})
+    
+    enemy_condition = (
+        allies_have == enemies or                 # both spared
+        trophies_have == {"knight_trophy", "alchemist_trophy"} or  # both killed
+        len(allies_have) + len(trophies_have) == 2  # one spared, one killed
+    )
+    return has_items and has_books and enemy_condition
 
 def boss_encounter():
     slow_print("\nYou stand before the corrupted King.")
@@ -260,8 +277,10 @@ while not state["king_defeated"]:
         # Boss
         elif current_room == "boss":
             add_item("dagger", "A dagger, cold to the touch. You know what it’s for.")
-            if REQUIRED_ITEMS.issubset(state["inventory"].keys()) and REQUIRED_BOOKS.issubset(state["books"]):
+            if can_fight_boss():
                 boss_encounter()
+            else:
+                slow_print("You feel unprepared to face the King... perhaps you need more items or allies.")
 
     else:
         first_dir, first_room = next(iter(rooms[current_room].items()))
