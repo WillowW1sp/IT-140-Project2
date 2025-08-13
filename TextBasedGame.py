@@ -7,7 +7,7 @@ import random
 
 # ---------- Game State ----------
 state = {
-    "hp": 25,                 # Base HP for normal players
+    "hp": 35,                 # Base HP for normal players
     "inventory": {},          # item_name -> description
     "books": set(),           # {"lore1", "lore2", "lore3", "lore4", "lore5"}
     "allies": set(),          # {"Cursed Knight", "Mad Alchemist"}
@@ -54,27 +54,24 @@ def slow_print(text, delay=0.03):
         time.sleep(delay)
     print()
 
-def add_item(name, desc):
+def add_item(name, desc): # add item to inventory
     if name not in state["inventory"]:
         state["inventory"][name] = desc
         slow_print(f"> You pick up {name}.")
-        # TODO: flavor text
-        slow_print(f"[TODO FLAVOR TEXT] You notice {name} in the room. {desc}")
+        slow_print(f"You notice {name} in the room. {desc}")
 
-def add_book(book_id, desc):
+def add_book(book_id, desc): # add lore book to inventory
     if book_id not in state["books"]:
         state["books"].add(book_id)
         slow_print(f"> You found {book_id}! {desc}")
-        # TODO: flavor text
-        slow_print(f"[TODO FLAVOR TEXT] You read '{book_id}': {desc}")
+        slow_print(f"'{book_id}': {desc}")
 
 def allies_attack():
     total_dmg = 0
     for ally in state["allies"]:
         dmg = random.randint(1, 3)
         slow_print(f"Your ally {ally} attacks for {dmg} damage!")
-        # TODO: flavor text
-        slow_print(f"[TODO FLAVOR TEXT] {ally} lunges forward, striking the enemy.")
+        slow_print(f"{ally} lunges forward, striking the enemy.")
         total_dmg += dmg
     return total_dmg
 
@@ -84,15 +81,13 @@ def allies_defend(incoming_damage):
         if random.random() < 0.25:
             block = random.randint(1, 3)
             slow_print(f"Your ally {ally} blocks {block} damage!")
-            # TODO: flavor text
-            slow_print(f"[TODO FLAVOR TEXT] {ally} intercepts the blow skillfully!")
+            slow_print(f"{ally} intercepts the blow skillfully!")
             reduced += block
     return max(0, incoming_damage - reduced)
 
 def fight_enemy(enemy_name, enemy_hp, enemy_damage, trophy_name):
     slow_print(f"\nA {enemy_name} lunges at you!")
-    # TODO: flavor text
-    slow_print(f"[TODO FLAVOR TEXT] You feel a chill as the {enemy_name} approaches!")
+    slow_print(f"You feel a chill as the {enemy_name} approaches!")
     rounds = 0
 
     while enemy_hp > 0 and state["hp"] > 0:
@@ -103,8 +98,7 @@ def fight_enemy(enemy_name, enemy_hp, enemy_damage, trophy_name):
         dmg = random.randint(1, 4) + attack_bonus
         enemy_hp -= dmg
         slow_print(f"You strike the {enemy_name} for {dmg} damage!")
-        # TODO: flavor text
-        slow_print(f"[TODO FLAVOR TEXT] Your blow lands with force!")
+        slow_print(f"Your blow lands with force!")
 
         # Allies attack
         if state["allies"]:
@@ -122,13 +116,11 @@ def fight_enemy(enemy_name, enemy_hp, enemy_damage, trophy_name):
                 state["allies"].add(enemy_name)
                 state["hp"] += 2
                 slow_print(f"{enemy_name} boosts your morale! HP is now {state['hp']}.")
-                # TODO: flavor text
-                slow_print(f"[TODO FLAVOR TEXT] {enemy_name} kneels and pledges their aid.")
+                slow_print(f"The mercy you've shown will not be forgotten, {enemy_name} kneels and pledges their aid.")
             else:
                 slow_print(f"You slay the {enemy_name}, claiming a trophy!")
                 state["trophies"].add(trophy_name)
-                # TODO: flavor text
-                slow_print(f"[TODO FLAVOR TEXT] The {enemy_name} falls, leaving behind a grim token.")
+                slow_print(f"a battle well fought, {enemy_name} falls, leaving behind a grim token.")
 
         # Enemy attacks
         if enemy_hp > 0:
@@ -136,8 +128,7 @@ def fight_enemy(enemy_name, enemy_hp, enemy_damage, trophy_name):
             edmg = allies_defend(edmg)
             state["hp"] -= edmg
             slow_print(f"The {enemy_name} hits you for {edmg} damage!")
-            # TODO: flavor text
-            slow_print(f"[TODO FLAVOR TEXT] Pain surges as the {enemy_name} lands its strike!")
+            slow_print(f"Pain surges as the {enemy_name} lands its strike!")
             if state["hp"] <= 0:
                 slow_print("You have been slain... Game over.")
                 exit()
@@ -161,16 +152,18 @@ def can_fight_boss():
 
 def boss_encounter():
     slow_print("\nYou stand before the corrupted King.")
-    # TODO: flavor text
-    slow_print("[TODO FLAVOR TEXT] The air grows thick, the shadows deep, as the King glares at you.")
+    slow_print("as you step through the cracked wooden doors, the air grows thick, the shadows deep, as the King glares at you.")
     has_bonus_books = {"lore4", "lore5"}.issubset(state["books"])
 
     if has_bonus_books:
         choice = input("Do you ATTACK or SPARE the King? ").strip().lower()
         if choice == "spare":
             slow_print("You spare the King, breaking the curse with compassion...")
-            # TODO: flavor text
-            slow_print("[TODO FLAVOR TEXT] A wave of light and relief washes over the chamber.")
+            slow_print("Your act of kindness resonates through the chamber.")
+            slow_print("The King, once a figure of dread, now stands before you, a man freed from his torment.")
+            slow_print("He looks at you with gratitude, a faint smile breaking through his haunted expression.")
+            time.sleep(.25)
+            slow_print("Thank you...")
             state["king_defeated"] = True
             ending(True)
             return
@@ -182,22 +175,22 @@ def boss_encounter():
 def ending(spared):
     slow_print("\n=== GAME OVER ===")
     if spared:
-        slow_print("With the two hidden lore books, you learned the King was a victim. Your mercy frees him.")
-        # TODO: flavor text
-        slow_print("[TODO FLAVOR TEXT] Peace returns to the manor, the shadows recede.")
+        slow_print("With the two hidden lore books, you learned the King was a victim of his own twisted mind. Your mercy frees him.")
+        slow_print("The magic he once controlled slowly tore at his mind until nothing was left.")
+        slow_print("Peace returns to the manor, the shadows recede.")
     else:
         slow_print("The King lies dead, the curse broken... but perhaps the true evil still lurks.")
-        # TODO: flavor text
-        slow_print("[TODO FLAVOR TEXT] A chill remains in the air, hinting at unseen threats.")
+        slow_print("In the silence that follows, you can't shake the feeling that this victory is but a fleeting illusion.")
+        slow_print("A chill remains in the air, hinting at unseen threats.")
     exit()
 
 # ---------- Start Game ----------
 player_name = input("Enter your name, brave adventurer: ").strip().lower()
-if player_name in ("archy", "archebald"):
+if player_name in ("archy", "archebald"): # Easter egg for my friends, and a nod to a character in some of my other work
     state["hp"] = 1000
-    slow_print("Ah, the legendary Archy! You feel invincible! HP set to 1000.")
+    slow_print("Ah, the legendary Archy! Good to see you again old friend! HP set to 1000.")
 elif player_name == "inmate":
-    state["hp"] = 35
+    state["hp"] = 15
     slow_print("You are an inmate with just enough strength to endure the cursed manor. Tread carefully.")
 else:
     slow_print(f"Welcome, {player_name.capitalize()}. May your wits guide you through the manor.")
@@ -208,8 +201,7 @@ bad_inputs = 0
 
 while not state["king_defeated"]:
     print(f"\nYou are in {current_room}.")
-    # TODO: flavor text for room description
-    slow_print(f"[TODO FLAVOR TEXT] You look around the {current_room} carefully.")
+    slow_print(f"You look around the {current_room} carefully.")
     time.sleep(0.5)
     print("Available moves:")
     for direction, dest in rooms[current_room].items():
@@ -239,11 +231,11 @@ while not state["king_defeated"]:
 
         # Storage
         elif current_room == "storage":
-            add_book("lore1", "[Lore 1 placeholder: Required book text goes here]")
+            add_book("lore1", "A torn note scribbled with desperate ramblings. The king is getting desperate... we dont have long, we need to stop H...")
 
         # Hallway
         elif current_room == "hallway":
-            add_book("lore2", "[Lore 2 placeholder: Required book text goes here]")
+            add_book("lore2", "An old charred notebook. The manor won't let us leave. The king trapped us here after the spell took hold.")
             if "hidden1" not in state["hidden_found"]:
                 state["hidden_found"].add("hidden1")
                 slow_print("You press a loose brick... a hidden door opens below the hallway (hidden1)!")
@@ -251,7 +243,7 @@ while not state["king_defeated"]:
 
         # Hidden1
         elif current_room == "hidden1":
-            add_book("lore4", "[Lore 4 placeholder: Optional book text goes here]")
+            add_book("lore4", "A note scratched in the wall: I feel my mind slipping. The spell was too powerful. I must keep us safe from this spell.")
 
         # Cell1
         elif current_room == "cell1":
@@ -264,11 +256,11 @@ while not state["king_defeated"]:
 
         # Hidden2
         elif current_room == "hidden2":
-            add_book("lore5", "[Lore 5 placeholder: Optional book text goes here]")
+            add_book("lore5", "A crumpled note: It's my fault. It's all my fault. I need to find someone to end my life. the only way... the only way to save them")
 
         # Cell2
         elif current_room == "cell2":
-            add_book("lore3", "[Lore 3 placeholder: Required book text goes here]")
+            add_book("lore3", "A note written in the margins of a cookbook: The king is asking for some strange foods. last week was a full deer, and today he asked for all the spoilt food in our refrigerator")
 
         # Laboratory
         elif current_room == "laboratory":
@@ -277,12 +269,13 @@ while not state["king_defeated"]:
         # Boss
         elif current_room == "boss":
             add_item("dagger", "A dagger, cold to the touch. You know what it’s for.")
-            if can_fight_boss():
+            if can_fight_boss(): # Check if player has all needed items
                 boss_encounter()
             else:
                 slow_print("You feel unprepared to face the King... perhaps you need more items or allies.")
 
     else:
+        # Handle bad inputs, plus it's fun to break the 4th wall sometimes
         first_dir, first_room = next(iter(rooms[current_room].items()))
         if bad_inputs == 0:
             slow_print("That's not an option...")
