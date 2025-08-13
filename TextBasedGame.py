@@ -28,7 +28,7 @@ rooms = {
     "storage": {"east": "kitchen"},
     "hallway": {"west": "start", "east": "cell1", "south": "cell2", "north": "laboratory"},
     "hidden1": {"up": "hallway"},
-    "hidden2": {},
+    "hidden2": {},  # will add west -> cell1 when unlocked
     "cell1": {"west": "hallway"},  # Hidden2 added later
     "cell2": {"north": "hallway"},
     "laboratory": {"south": "hallway", "west": "boss"},
@@ -65,7 +65,7 @@ def add_book(book_id, desc):
     if book_id not in state["books"]:
         state["books"].add(book_id)
         slow_print(f"> You found {book_id}! {desc}")
-        # TODO: flavor text for lore book
+        # TODO: flavor text
         slow_print(f"[TODO FLAVOR TEXT] You read '{book_id}': {desc}")
 
 def allies_attack():
@@ -243,6 +243,7 @@ while not state["king_defeated"]:
                 state["hidden_found"].add("hidden2")
                 slow_print("A hidden door opens to the east (hidden2)!")
                 rooms["cell1"]["east"] = "hidden2"
+                rooms["hidden2"]["west"] = "cell1"  # <-- Fixed return path
 
         # Hidden2
         elif current_room == "hidden2":
