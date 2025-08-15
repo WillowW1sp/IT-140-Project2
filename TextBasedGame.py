@@ -2,6 +2,15 @@
 # Cursed Manor — IT 140 project
 # Author: Willow Magnante
 # ==============================
+'''
+I've switched IDEs so many times in the last few weeks...
+every time I find a new one I find things I don't like...
+sublime, vim too much effort to get it how I want it, VScode is microsoft and I dont like that.
+jetbrains fleet is too ram intensive. pycharm and the likes are too limited. 
+how am I gonna find a good one?
+Thats my rant for the day.
+enjoy my game, The Cursed Manor. 
+'''
 import time
 import random
 
